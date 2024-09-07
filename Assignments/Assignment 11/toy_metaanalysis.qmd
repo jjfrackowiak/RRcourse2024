@@ -1,0 +1,78 @@
+---
+title: "Example Metaanalysis in R"
+author: "Jan Frąckowiak"
+date: today
+format:  
+  html:
+    theme: flatly
+    toc: true
+    toc_float: true
+title-block-banner: true
+execute:
+  echo: fenced
+---
+
+### Introduction
+
+This analysis uses metadata of 28 studies concerning time spent by boys and girls with gender-related toys. Particulary the significance of the difference between the times boys spent playing with toys assocciated with girls (**experimental group**) is compared to time boys spent with toys associated with boys (**control group**). 
+
+Funell plot is used to visualise dispersion of differences between the studies.
+
+Additionaly the influence of factors such as: gender of authors, justification for the gendered nature of a toy and study quality score is examined.
+
+Reading the Data:
+```{r}
+#| label = "setup",
+#| include = FALSE
+library(readxl)
+library(meta)
+library(metafor)
+library(dplyr)
+#setwd("")
+```
+
+```{r}
+mdata <- read_excel("data/metaanalysis_data.xlsx")
+mdata[1:5,]
+```
+
+### Effect sizes are not calculated -> we use metacont from meta package
+
+
+```{r}
+m <- metacont(n.e=N_boys,
+                  mean.e=Mean_boys_play_female,
+                  sd.e=SD_boys_play_female,
+                  n.c=N_boys,
+                  mean.c=Mean_boys_play_male,
+                  sd.c=SD_boys_play_male,
+                  data=mdata,
+                  studlab=paste(Study),
+                  comb.fixed = TRUE,
+                  comb.random = TRUE,
+)
+m
+```
+
+
+**Observation:** We may observe significant, strong, negative differences between the average time boys spent with female toys and male toys. This suggests that empirically they are more reluctant to play with female toys. 
+
+## Funnel plot
+
+```{r}
+m %>% funnel()
+```
+
+
+**Observation:** The results are not symmetrically distributed around the average with majority on the left side which can be caused by inconsistency of sample sizes. However we observe a high prevalence of negative difference estimates with moderate standard errors which further supports the conclusion from common/random effects models. 
+
+## Finding what explains the results
+
+Let's see if the effect sizes are determined by how the study was conducted and the gender of authors.
+
+```{r}
+m %>% metareg(`Female authors` + `Male authors` + `NOS score` + `Case definition adequate`)
+  
+```  
+
+**Observation:** We may observe that neither the justification for the gendered nature of a toy (Case definition adequate), nor Newcastle-Ottawa Score (NOS score) proved significant. Only number of female authors turned out significant and explained the effects sizes (presence of male authors also did not prove significant).
