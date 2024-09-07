@@ -1,0 +1,75 @@
+---
+title: "Suits TV Show Viewership Report"
+author: "Jan Frąckowiak"
+date: "2024-09-07"
+format:
+  html:
+    theme: superhero  # Bootstrap theme
+    toc: true  # Enable table of contents
+    toc-location: left  # Set the TOC to the left
+    code-fold: true  # Collapse code blocks by default
+    code-tools: true  # Show buttons to copy or collapse code
+    tabs:
+      - {.tabset}  # Enable tabs
+  pdf: default
+  docx: default
+---
+
+Note: to get the PDF, Jupyter outputs run `quarto render suits_report_mod.qmd` in terminal. 
+
+## Introduction
+Suits is a legal drama television series that first aired on USA Network on June 23, 2011. Created by *Aaron Korsh*, the show follows *Mike Ross*, a college dropout with a photographic memory, who starts working as an associate at a top New York law firm despite not having a law degree. With intense legal battles, power plays, and personal struggles, Suits became one of USA Network's most popular series, running for nine seasons and concluding in 2019.
+
+## Suits Logo
+![Suits Logo](suits_logo.png)
+
+## Viewership Over Time
+Below is a line graph representing the last episode viewership per season.
+
+```{python}
+# Import necessary libraries
+import matplotlib.pyplot as plt
+import numpy as np
+
+##  Viewership data
+seasons = list(range(1, 10))
+viewership = [3.47, 3.20, 2.40, 1.55, 1.71, 1.13, 1.07, 0.74, 0.86]
+
+## Plotting the graph for Viewership per Season
+plt.figure(figsize=(10, 6))
+plt.plot(seasons, viewership, marker='o', color='b', linestyle='--')
+plt.title('Suits - Last Episode Viewership per Season (in millions)')
+plt.xlabel('Season')
+plt.ylabel('Viewership (in millions)')
+plt.xticks(seasons)
+plt.grid(True)
+plt.show()
+```
+
+## Percentage Change in Viewership
+To visualize how the lasting viewership changed between seasons, here is a bar graph representing the percentage change in viewership from one season to the next.
+
+```{python}
+# Import necessary libraries
+import numpy as np
+
+# Calculating the percentage changes between seasons
+changes = np.diff(viewership) / viewership[:-1] * 100
+
+# Plotting the changes
+plt.figure(figsize=(10, 6))
+plt.bar(seasons[1:], changes, color='r')
+plt.title('Percentage Change in Last Episode Viewership Between Seasons')
+plt.xlabel('Season')
+plt.ylabel('Percentage Change (%)')
+plt.xticks(seasons[1:])
+plt.grid(True)
+plt.show()
+```
+
+## Analysis of Viewership Trends
+Over the show's nine seasons, Suits experienced significant fluctuations in its lasting (last episode) viewership numbers.
+
+In Season 1, the show ended with of `{python} viewership[0]` million viewers.
+However, by Season 2, the viewership dropped by `{python} round(changes[0], 2)`%, ending with `{python} viewership[1]` million.
+Except for Season 4 and Season 9, Suits experienced drops in viewership of the last episodes.
