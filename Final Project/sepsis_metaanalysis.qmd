@@ -1,0 +1,96 @@
+---
+title: "Does immediate antibiotics administration reduce sepis mortality? : Metaanalysis in R"
+author: "Jan Frąckowiak"
+date: today
+format:  
+  html:
+    theme: flatly
+    toc: true
+    toc_float: true
+title-block-banner: true
+execute:
+  echo: fenced
+---
+
+### Introduction
+
+This report builds on [Rothroc et al. 2020 metanalysis](https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger) reviewing data from 14 studies concernign the impact of immediecy of antibiotics administration in mortality among sepsis patients. Specifically the studies compare the mortatality between group of patients where antiobiotics were given in 0 to 1 hour from sepis onset (immediate administration) and the group when they were given antibiotics from 1 to 3 hour (early administration)
+
+
+Publication selection criteria: concerning time spent by boys and girls with gender-related toys. Particulary the significance of the difference between the times boys spent playing with toys assocciated with girls (**experimental group**) is compared to time boys spent with toys associated with boys (**control group**).  https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger
+
+Funell plot is used to visualise dispersion of differences between the studies.
+
+Additionaly the influence of factors such as: gender of authors, justification for the gendered nature of a toy and study quality score is examined.
+
+
+### Additional Studies
+
+
+
+### Reading the Data
+
+```{r}
+library(meta)
+library(metafor)
+library(dplyr)
+```
+
+```{r}
+mdata <- read.csv("data/sepsis_meta.csv", sep=";")
+mdata[1:5,]
+```
+
+### Calculation of effect sizes
+
+*Note:* 
+
+```{r}
+m <- metacont(n.e=Number_of_Subjects_01,
+              mean.e=Mortality_of_Subjects_01,
+              sd.e=Binom_SD_01,
+              n.c=Number_of_Subjects_13,
+              mean.c=Mortality_of_Subjects_13,
+              sd.c=Binom_SD_13,
+              data=mdata,
+              studlab=paste(Author),
+              comb.fixed = TRUE,
+              comb.random = TRUE,
+)
+m
+```
+
+
+**Observation:** We may observe significant, strong, negative differences between the average time boys spent with female toys and male toys. This suggests that empirically they are more reluctant to play with female toys. 
+
+## Forest plot
+```{r}
+m %>% forest()
+```
+
+## Funnel plot
+
+```{r}
+m %>% funnel()
+```
+
+
+**Observation:** The results are not symmetrically distributed around the average with majority on the left side which can be caused by inconsistency of sample sizes. However we observe a high prevalence of negative difference estimates with moderate standard errors which further supports the conclusion from common/random effects models. 
+
+```{r}
+contour_levels <- c(0.90, 0.95, 0.99)
+contour_colors <- c("darkblue", "blue", "lightblue")
+funnel(m, contour = contour_levels, col.contour = contour_colors)
+legend("topright", c("p < 0.10", "p < 0.05", "p < 0.01"), bty = "n", fill = contour_colors)
+```
+
+## Finding what explains the results
+
+Let's see if the effect sizes are determined by how the study was conducted and the gender of authors.
+
+```{r}
+m %>% metareg(`Number_of_Hospitals` + `Percent_Male` + `Median_Age` + `Median_Time_to_Antibiotics` + `Design`)
+  
+```  
+
+**Observation:** We may observe that neither the justification for the gendered nature of a toy (Case definition adequate), nor Newcastle-Ottawa Score (NOS score) proved significant. Only number of female authors turned out significant and explained the effects sizes (presence of male authors also did not prove significant).
