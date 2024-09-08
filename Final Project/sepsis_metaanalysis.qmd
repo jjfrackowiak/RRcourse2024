@@ -1,5 +1,5 @@
 ---
-title: "Does immediate antibiotics administration reduce sepis mortality? : Metaanalysis in R"
+title: "Does immediate antibiotics administration reduce sepis mortality? A metaanalysis in R"
 author: "Jan Frąckowiak"
 date: today
 format:  
@@ -12,13 +12,13 @@ execute:
   echo: fenced
 ---
 
-This report extends the work of [Rothroc et al. 2020 metanalysis](https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger), which reviewed data from 14 studies examining the impact of antibiotic administration timing on mortality among sepsis patients. Specifically, Rothroc et al. compared mortality rates between two groups: patients who received antibiotics within 0 to 1 hour of sepsis onset (immediate administration) and those who received antibiotics within 1 to 3 hours (early administration). The original study found no significant difference in mortality between these groups.
+This report builds upon the work of [Rothroc et al. (2020) meta-analysis](https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger), which reviewed data from 13 studies examining the impact of antibiotic administration timing on mortality among sepsis patients. Specifically, Rothroc et al. compared mortality rates between two groups: patients who received antibiotics within 0 to 1 hour of sepsis onset (immediate administration) and those who received antibiotics within 1 to 3 hours (early administration). The original study found no significant difference in mortality between these groups.
 
-This analysis builds on that original work by incorporating two additional studies published after the original review. Following a description of the selection criteria for the studies included, the variables and the method for estimating samples' standard deviations are discussed.
+This analysis builds on that original work by incorporating two additional studies published after the initial review. Following a description of the selection criteria for the included studies, the report discusses the variables and the method used for estimating the sample standard deviations.
 
-Subsequently, random and fixed effect models are applied to determine if the difference between the immediate and early treatment groups is still insignificant with the expanded data set. To illustrate these findings and reflect on publication bias forest and funnel plots are presented.
+Subsequently, random and fixed effect models are applied—first to the data from the 13 original studies, and then to the extended data set that includes the additional studies. The objective is to determine whether the difference between the immediate and early treatment groups remains insignificant with the expanded data set. To verify reproducibility and visualize the results, forest plots are utilized. For the extended dataset, a funnel plot is presented to assess potential publication bias.
 
-The report concludes with an analysis of sample-related and methodological factors that may influence the observed effects.
+The report concludes with an analysis of sample-related and methodological factors that may influence the observed effects in the expanded data set.
 
 
 ### Included studies
@@ -46,14 +46,14 @@ character. The study label containing the author(s) of the study.
 *Number_of_Subjects_01*  
 numeric. The number of subjects in the immediate antibiotic treatment group (0-1 hours).
 
-*Mortality_of_Subjects_01*  
-numeric. The mortality rate in the immediate antibiotic treatment group (0-1 hours).
+*Events_of_Subjects_01*  
+numeric. Death events in the immediate antibiotic treatment group (0-1 hours).
 
 *Number_of_Subjects_13*  
 numeric. The number of subjects in the early antibiotic treatment group (1-3 hours).
 
-*Mortality_of_Subjects_13*  
-numeric. The mortality rate in the early antibiotic treatment group (1-3 hours).
+*Events_of_Subjects_13*  
+numeric. Death events in the early antibiotic treatment group (1-3 hours).
 
 *Number_of_Hospitals*  
 numeric. The number of hospitals involved in the study.
@@ -85,68 +85,97 @@ mdata <- read.csv("data/sepsis_meta.csv", sep=";")
 rmarkdown::paged_table(mdata[1:5,])
 ```
 
-### Calculation of mortality standard deviation
+## Odds Ratio
 
-The original methodology employed by the authors involved calculating odds ratios with 95% confidence intervals. Here the original mortality rates were selected as the base parameter. 
+The **odds ratio** (OR) is a measure of association between an exposure and an outcome. It compares the odds of the outcome occurring in the treatment or experimental group to the odds of the outcome in the control or unexposed group.
 
-Because mortality is an estimate of probability of death, standard deviations were calculated assuming a binomial distribution with the underlying probability of death equal to the mortality rate.
-
-The standard deviation of binomial distribution is expressed as:
+Mathematically, the odds ratio is defined as:
 
 $$
-\text{SD} = \sqrt{n \cdot p \cdot (1 - p)}
+\text{OR} = \frac{\frac{a}{b}}{\frac{c}{d}} = \frac{a \cdot d}{b \cdot c}
 $$
 
+###### Where:
+* $a$ = Number of events (outcome present) in the experimental group
+* $b$ = Number of non-events (outcome absent) in the experimental group
+* $c$ = Number of events in the control group
+* $d$ = Number of non-events in the control group
 
-##### Where:
-* $SD$ - Standard deviation of the binomial distribution.
-* $n$ - Number of independent trials (sample size).
-* $p$ - Probability of presence of event in a single trial.
-* $1-p$ - Probability of absence of event in a single trial.
+An **odds ratio** greater than 1 indicates that the outcome is more likely in the treatment group, while an odds ratio less than 1 suggests it is less likely in the treatment group.
 
 
-In R this could be easily calculated with *mutate* function:
+## Reproducing original results
+
+For binary variables, such as mortality among patients between the two groups, the `metabin` function from the [meta package](https://cran.r-project.org/web/packages/meta/meta.pdf) in R was utilized. The authors of the original review estimated a random effects model using a similar method, employing the Mantel-Haenszel approach.
+
+
 ```{r}
-mdata <- mdata %>%
-  mutate(Binom_SD_01 = sqrt(Mortality_of_Subjects_01 * (1 - Mortality_of_Subjects_01) * Number_of_Subjects_01)) %>%
-  mutate(Binom_SD_13 = sqrt(Mortality_of_Subjects_13 * (1 - Mortality_of_Subjects_13) * Number_of_Subjects_13))
+m_org <- metabin(event.e = Events_of_Subjects_01,
+             n.e = Number_of_Subjects_01, 
+             event.c = Events_of_Subjects_13,
+             n.c = Number_of_Subjects_13,
+             data = mdata[1:13, ], # Just 13 original studies
+             studlab= paste(Author),
+             method = "MH", # Mantel-Haenszel method
+             sm = "OR")  # Use odds ratio
 ```
 
-### Calculation of effect sizes
+## Forest Plot for Original Data
+
+The authors of the original review calculated forest plots for their studies. In this section, forest plot is used to validate whether the method utilized yields comparable results.
+
 
 ```{r}
-m <- metacont(n.e=Number_of_Subjects_01,
-              mean.e=Mortality_of_Subjects_01,
-              sd.e=Binom_SD_01,
-              n.c=Number_of_Subjects_13,
-              mean.c=Mortality_of_Subjects_13,
-              sd.c=Binom_SD_13,
-              data=mdata,
-              studlab=paste(Author),
-              comb.fixed = TRUE,
-              comb.random = TRUE,
-)
+m_org %>% forest(fontsize=7)
+```
+
+
+Here is the forest plot obtained by authors:
+
+<br>
+
+![Forest plot from original study](sepsis_results_org.jpg)
+
+**Observation:** As observed, the results are consistent. They are also very similar concerning the random effects model odds ratios (1.09 [0.99, 1.21] vs 1.00 [0.98, 1.21]). Interestingly, for the common effects model (Mantel-Haenszel), the lower bound of the confidence interval is greater than 1, indicating a significant difference between the experimental and control samples.
+
+
+## Calculation of effect sizes for extended data
+
+In the next step, both common effects and random effects models were estimated for all 15 studies.
+
+
+```{r}
+m <- metabin(event.e = Events_of_Subjects_01,
+             n.e = Number_of_Subjects_01, 
+             event.c = Events_of_Subjects_13,
+             n.c = Number_of_Subjects_13,
+             data = mdata,
+             studlab= paste(Author),
+             method = "MH",
+             sm = "OR")
 m
 ```
 
 
-**Observation:** P-values for both models are very high, indicating no statistical differences between the control and experimental groups.
+**Observation:** The extended data reveal a significant effect for the common effects model, with an odds ratio greater than one. For the random effects model, the results analyzed by the authors show a p-value above the 5% threshold.
 
-## Forest plot
+
+## Forest plot for extended data
 ```{r}
-m %>% forest()
+m %>% forest(fontsize=7)
 ```
 
-**Observation:** Forest plots also indicate a lack of significant differences at the individual study levels, where mean differences are consistently around zero.
+**Observation:** Forest plots also indicate a mix of odds ratios above and below one at the individual study levels. The results for the entire models are consistent, showing a significant positive effect for the common effects model and an insignificant result for the random effects model.
 
-## Funnel plot
+
+## Funnel plot for extended data
 
 ```{r}
 m %>% funnel()
 ```
 
 
-Funnel Plot with Contours for P-values:
+Funnel plot with contours for P-values:
 ```{r}
 contour_levels <- c(0.90, 0.95, 0.99)
 contour_colors <- c("darkblue", "blue", "lightblue")
@@ -154,7 +183,8 @@ funnel(m, contour = contour_levels, col.contour = contour_colors)
 legend("topright", c("p < 0.10", "p < 0.05", "p < 0.01"), bty = "n", fill = contour_colors)
 ```
 
-**Observation:** The plot clearly demonstrates the insignificance of differences between experimental and control samples across the studies. The data points are all within the white area, which represents high P-values, and are symmetrically distributed around zero.
+**Observation:** The funell plot does not suggest any publication bias, as the data points are more or less symmetrically distributed around the average. The average is above 1, indicating higher mortality in the experimental group.
+
 
 ## Finding what explains the results
 
@@ -165,12 +195,15 @@ m %>% metareg(`Number_of_Hospitals` + `Percent_Male` + `Median_Age` + `Median_Ti
   
 ```  
 
-**Observation:** Neither the number of hospitals, the percentage of males, nor the time to antibiotics prove significant. This also applies to the four different ways the studies were designed - none of them are significant.
+**Observation:** Neither the number of hospitals, the percentage of males, nor the time to antibiotics prove significant. This also applies to the four different study designs—none of them show significance.
 
 ## Conclusion
 
-To conclude, after adding the two studies, the results of the original metaanalysis remained unchanged and were positively verified. All applied methods of significance testing — common effect model, random effect model, and regression of the effects on various study characteristics — failed to demonstrate any significant difference between immediate (0-1 hours after sepsis onset) and early (1-3 hours after sepsis onset) antibiotic treatment. This is also visible on funnel and forecast plots, which provide a clear perspective on individual studies.
+Using R language and libraries, the findings of the original study were successfully reproduced. After incorporating two additional studies, the conclusions of the original meta-analysis remained unchanged for the random effects model (although in both cases random effects model proved insignificant). For the common effects model, both with the extended and original data, an odds ratio greater than one at a significant level was observed. This indicates higher mortality associated with immediate antibiotic administration.
 
-## Further research
+Regression of the effects on various study characteristics did not identify any particular drivers of effects. The higher expected mortality in the treatment group was also evident in the forest and funell plots, which provide a clear perspective on individual studies. The funnel plot, with symmetrically distributed data points, did not allow to suspect any publication bias.
 
-Given the limited scope of this analysis and its aggregate level, similar studies could be conducted on more strictly defined patient groups (e.g., only those with severe sepsis or septic shock) and different time intervals.
+## Further Research
+
+Given the limited scope of this analysis and its general character, similar studies could be conducted on more strictly defined patient groups (e.g., only those with severe sepsis or septic shock) or with different time intervals to gain more precise insights.
+
