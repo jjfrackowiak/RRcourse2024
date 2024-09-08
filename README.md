@@ -1,8 +1,8 @@
 # RRcourse2024
 
 ## Personal Assignments:
-All the assignments from 6 to 11 class could be found in Assignments directory. <br>
-Final project can be found in Final Project directory. <br>
+All the assignments from 6 to 11 class could be found in Assignments directory.<br>
+Final project can be found in Final Project directory.<br>
 
 Main repository for Reproducible Research 2024 course.
 
