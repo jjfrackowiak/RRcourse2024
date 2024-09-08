@@ -1,39 +1,17 @@
-﻿Author;Number_of_Hospitals;Design;Setting (ED only);Median_Age;Percent_Male;Definition of Onset. Time Zero;Mortality_Defined;Median_Time_to_Antibiotics;Number_of_Subjects_01;Mortality_of_Subjects_01;Binom_SD_01;Number_of_Subjects_13;Mortality_of_Subjects_13;Binom_SD_13;Risk Adjustment or Alternate Severity Comparison. 0–1 Hour vs 1–3 Hours
-"Alam.28
-2018∗
-Netherlands";34;Prospective Controlled Open Label;1;72.5;57;ED arrival;Hospital;70;31;0.11;0.0561966592968749;16;0.07;0.0637867541108654;0–1 h (8.5% septic shock) vs 1–3 h (3.9% septic shock). P=.052
-"Bloos.29 2014
-Germany";44;Prospective observational;0;69;62.7;Time of first organ dysfunction;28 days;126;65;0.349;0.059121647733882;86;0.345;0.0512602797404556;None
-"Castano.30
-2019∗
-Columbia";3;Prospective observational;1;63;53.1;ED triage;Hospital;;15;0.263;0.113675268491729;33;0.18;0.0668784514827255;"0–1 h (35% septic shock). 1– 3 h (23% septic shock).
-P=.12"
-"de Groot.31 2015
-Netherlands";3;Prospective observational;1;62;55.7;ED registration;28 days;;46;0.139;0.0510070327631823;47;0.14;0.0506132603934935;"0–1 h (36% PIRO score >14). 1–3 h (26% PIRO score >14).
-P=.02"
-"Drumheller.32 2016
-Philadelphia. PA";1;Retrospective cohort;1;59.5;56.7;ED triage;Hospital;120;16;0.178;0.0956281862214274;46;0.256;0.0643468860095843;100% septic shock. No risk adjustment for 0–1 h vs 1–3 h
-"Ferrer.10 2014
-Europe. South America. United States";144;Retrospective cross sectional;0;;;ED triage time. IP/ICU. onset organ dysfunction;Hospital;;1512;0.32;0.0119964721445658;2155;0.283;0.00970351671606396;0–1 h (69.6% septic shock) vs 1–3 h (62.1% septic shock). P<.001
-"Filbin.33 2020∗
-Boston. MA";1;Retrospective cohort;1;;59.2;Onset hypoperfusion (systolic BP <90 mm Hg or lactate ≥4 mmol/L) at triage or in ED;Hospital;96;32;0.215;0.0726238166857127;59;0.243;0.0558373849613504;100% septic shock. Time to antibiotics not associated with mortality (adjusted OR 1.01. 95% CI 0.94–1.08)
-"Hwang.34 2019
-Seoul. Korea";1;Retrospective cohort;1;66;57.6;ED triage;28 days;132;20;0.112;0.0705180827873248;159;0.149;0.0282396527496601;100% septic shock. No risk adjustment for periods
-"Leisman.35 2019∗
-New York (state)";9;Retrospective cohort;0;74;51.3;Time of infection+2 SIRS criteria met+organ dysfunction;Hospital;180;1046;0.194;0.0122265110191633;699;0.192;0.0148976479406345;% septic shock not specified for 0–1 and 0– 3 h
-"Peltan.36 2019∗
-Utah";4;Retrospective cohort;1;60.9;48.1;ED arrival§;Hospital;166;139;0.232;0.0358028173000213;1.082;0.195;0.380891793329166;"0–1 h (45.1% septic shock). 1–3 h (30% septic shock).
-P<.001"
-"Puskarich.37 2011
-Time zero=ED triage
-Charlotte. NC; Boston MA; Camden. NJ";3;Prospective. randomized. nonblinded;1;62;53.6;ED triage;Hospital;114;11;0.169;0.112991954661302;35;0.222;0.0702477249250313;100% septic shock cases. Adjusted OR for mortality at 0–1 h 1.81 vs 0.66 at 1–2 h. 1.07 at 2–3 h
-"Puskarich.37 2011
-Time zero=septic shock onset";;;;62;53.6;Onset of 2 SIRS criteria+SBP <90 mm Hg after fluids at 20 mL/kg or lactate level ≥4 mmol/L returned;;;26;0.256;0.085589359511206;13;0.206;0.112168828797693;Patients with antibiotics before shock onset excluded from this subset
-"Ryoo.38
-2015
-Seoul. South Korea";1;Retrospective cohort;1;63;61;ED triage;28 days;91.5;29;0.193;0.0732852245540057;40;0.201;0.0633638303766431;100% septic shock cases. No risk adjustment between 0–1 h and 1–3 h
-"Whiles.12
-2017∗
-Kansas City. KS";1;Retrospective cohort;1;58.9;53.5;ED arrival;Hospital;177;55;0.122;0.0441312093236027;142;0.092;0.0242545189632952;100% severe sepsis cases. Charlson comorbidity index (0–1 h [2.08] vs 1–3 h [2.6]) P=.91
-Siewers et al. (2022);1;;1;74.2;55.6;;;141;34;0.09;0.0490797670064943;137;0.21;0.0347986911407525;
-Althunayyan et al. (2021);;;;;;;;;250;0.316;0.0294036732399202;42;0.333;0.0727210914580986;
+Author;Number_of_Hospitals;Design;ED_Setting;Median_Age;Percent_Male;Definition_of_Onset;Mortality_Defined;Median_Time_to_Antibiotics;Number_of_Subjects_01;Mortality_of_Subjects_01;Number_of_Subjects_13;Mortality_of_Subjects_13
+Alam et al. (2018);34.0;Prospective Controlled Open Label;1.0;72.5;57.0;ED arrival;Hospital;70.0;31;0.11;16.0;0.07
+Bloos et al. (2014);44.0;Prospective observational;0.0;69.0;62.7;Time of first organ dysfunction;28 days;126.0;65;0.349;86.0;0.345
+Castano et al. (2019);3.0;Prospective observational;1.0;63.0;53.1;ED triage;Hospital;;15;0.263;33.0;0.18
+de Groot et al. (2015);3.0;Prospective observational;1.0;62.0;55.7;ED registration;28 days;;46;0.139;47.0;0.14
+Drumheller et al. (2016);1.0;Retrospective cohort;1.0;59.5;56.7;ED triage;Hospital;120.0;16;0.178;46.0;0.256
+Ferrer et al. (2014);144.0;Retrospective cross sectional;0.0;;;ED triage time. IP/ICU. onset organ dysfunction;Hospital;;1512;0.32;2155.0;0.283
+Filbin et al. (2020);1.0;Retrospective cohort;1.0;;59.2;Onset hypoperfusion (systolic BP <90 mm Hg or lactate ≥4 mmol/L) at triage or in ED;Hospital;96.0;32;0.215;59.0;0.243
+Hwang et al. (2019);1.0;Retrospective cohort;1.0;66.0;57.6;ED triage;28 days;132.0;20;0.112;159.0;0.149
+Leisman et al. (2019);9.0;Retrospective cohort;0.0;74.0;51.3;Time of infection+2 SIRS criteria met+organ dysfunction;Hospital;180.0;1046;0.194;699.0;0.192
+Peltan et al. (2019);4.0;Retrospective cohort;1.0;60.9;48.1;ED arrival§;Hospital;166.0;139;0.232;1.082;0.195
+Puskarich et al. (2011);3.0;Prospective. randomized. nonblinded;1.0;62.0;53.6;ED triage;Hospital;114.0;11;0.169;35.0;0.222
+Puskarich et al. (2011);;;;62.0;53.6;Onset of 2 SIRS criteria+SBP <90 mm Hg after fluids at 20 mL/kg or lactate level ≥4 mmol/L returned;;;26;0.256;13.0;0.206
+Ryoo et al. (2015);1.0;Retrospective cohort;1.0;63.0;61.0;ED triage;28 days;91.5;29;0.193;40.0;0.201
+Whiles et al. (2017);1.0;Retrospective cohort;1.0;58.9;53.5;ED arrival;Hospital;177.0;55;0.122;142.0;0.092
+Siewers et al.. (2022);1.0;;1.0;74.2;55.6;;;141.0;34;0.09;137.0;0.21
+Althunayyan et al. (2021);;;;;;;;;250;0.316;42.0;0.333

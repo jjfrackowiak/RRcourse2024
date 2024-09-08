@@ -69,7 +69,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="sepsis_metaanalysis_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="sepsis_metaanalysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="sepsis_metaanalysis_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="sepsis_metaanalysis_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="sepsis_metaanalysis_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -109,13 +140,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#additional-studies" id="toc-additional-studies" class="nav-link" data-scroll-target="#additional-studies">Additional Studies</a></li>
-  <li><a href="#reading-the-data" id="toc-reading-the-data" class="nav-link" data-scroll-target="#reading-the-data">Reading the Data</a></li>
+  <li><a href="#included-studies" id="toc-included-studies" class="nav-link active" data-scroll-target="#included-studies">Included studies</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a></li>
+  <li><a href="#calculation-of-mortality-standard-deviation" id="toc-calculation-of-mortality-standard-deviation" class="nav-link" data-scroll-target="#calculation-of-mortality-standard-deviation">Calculation of mortality standard deviation</a></li>
   <li><a href="#calculation-of-effect-sizes" id="toc-calculation-of-effect-sizes" class="nav-link" data-scroll-target="#calculation-of-effect-sizes">Calculation of effect sizes</a></li>
   <li><a href="#forest-plot" id="toc-forest-plot" class="nav-link" data-scroll-target="#forest-plot">Forest plot</a></li>
   <li><a href="#funnel-plot" id="toc-funnel-plot" class="nav-link" data-scroll-target="#funnel-plot">Funnel plot</a></li>
   <li><a href="#finding-what-explains-the-results" id="toc-finding-what-explains-the-results" class="nav-link" data-scroll-target="#finding-what-explains-the-results">Finding what explains the results</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#further-research" id="toc-further-research" class="nav-link" data-scroll-target="#further-research">Further research</a></li>
   </ul>
 </nav>
 </div>
@@ -125,171 +158,135 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="introduction" class="level3">
-<h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
-<p>This report builds on Rothroc et al.&nbsp;2020 metanalysis (https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger) reviewing data from 14 studies concernign the impact of immediecy of antibiotics administration in mortality among sepsis patients. Specifically the studies compare the mortatality between group of patients where antiobiotics were given in 0 to 1 hour from sepis onset (immediate administration) and the group when they were given antibiotics from 1 to 3 hour (early administration)</p>
-<p>Publication selection criteria: concerning time spent by boys and girls with gender-related toys. Particulary the significance of the difference between the times boys spent playing with toys assocciated with girls (<strong>experimental group</strong>) is compared to time boys spent with toys associated with boys (<strong>control group</strong>). https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger</p>
-<p>Funell plot is used to visualise dispersion of differences between the studies.</p>
-<p>Additionaly the influence of factors such as: gender of authors, justification for the gendered nature of a toy and study quality score is examined.</p>
+<p>This report extends the work of <a href="https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger">Rothroc et al.&nbsp;2020 metanalysis</a>, which reviewed data from 14 studies examining the impact of antibiotic administration timing on mortality among sepsis patients. Specifically, Rothroc et al.&nbsp;compared mortality rates between two groups: patients who received antibiotics within 0 to 1 hour of sepsis onset (immediate administration) and those who received antibiotics within 1 to 3 hours (early administration). The original study found no significant difference in mortality between these groups.</p>
+<p>This analysis builds on that original work by incorporating two additional studies published after the original review. Following a description of the selection criteria for the studies included, the variables and the method for estimating samples’ standard deviations are discussed.</p>
+<p>Subsequently, random and fixed effect models are applied to determine if the difference between the immediate and early treatment groups is still insignificant with the expanded data set. To illustrate these findings and reflect on publication bias forest and funnel plots are presented.</p>
+<p>The report concludes with an analysis of sample-related and methodological factors that may influence the observed effects.</p>
+<section id="included-studies" class="level3">
+<h3 class="anchored" data-anchor-id="included-studies">Included studies</h3>
+<p>Apart from the data from the original meta-analysis, two additional studies were included to further validate the findings. One study was conducted by <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8119622/">Siewers et al.&nbsp;(2021)</a> in Denmark, and the other by <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9280501/">Althunayyan et al.&nbsp;(2022)</a> in Riyadh, Saudi Arabia.</p>
+<p><br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="sepsis_mortality_alth.jpg" class="img-fluid figure-img" width="500"></p>
+<figcaption>Sepsis Mortality and immediecy of antibiotic therapy as per Althunayyan&nbsp;et al.&nbsp;(2022)</figcaption>
+</figure>
+</div>
+<p>Both of these studies adhered to the publication selection criteria utilized by Rothroc et al.&nbsp;They were recognized in the established medical publishing service (<em>PubMed</em>) and provided data for similarly defined patient groups: septic patients who received antibiotics within 0-1 hours and those who received antibiotics within 1-3 hours from sepsis onset. Additionally, all patients were above the age of 18.</p>
+<p><strong>Original publication selection criteria:</strong> The original meta-analysis included studies derived from recognized medical literature services (PubMed, Wiley’s Cochrane Library, EMBASE, Cumulative Index of Nursing and Allied Health Plus). These studies contained data for the two groups of interest (immediate and early antibiotic administration).</p>
+<p><strong>Exclusion criteria:</strong> Studies were excluded if they did not provide the total number of patients for either the 0 to 1-hour or 1 to 3-hour groups, lacked mortality data for either antibiotic period, were duplicates or used the same patient database during the same period, or included patients aged 17 years or younger.</p>
 </section>
-<section id="additional-studies" class="level3">
-<h3 class="anchored" data-anchor-id="additional-studies">Additional Studies</h3>
-</section>
-<section id="reading-the-data" class="level3">
-<h3 class="anchored" data-anchor-id="reading-the-data">Reading the Data</h3>
+<section id="data" class="level3">
+<h3 class="anchored" data-anchor-id="data">Data</h3>
+<section id="list-of-used-variables" class="level4">
+<h4 class="anchored" data-anchor-id="list-of-used-variables">List of Used Variables</h4>
+<p><em>Author</em><br>
+character. The study label containing the author(s) of the study.</p>
+<p><em>Number_of_Subjects_01</em><br>
+numeric. The number of subjects in the immediate antibiotic treatment group (0-1 hours).</p>
+<p><em>Mortality_of_Subjects_01</em><br>
+numeric. The mortality rate in the immediate antibiotic treatment group (0-1 hours).</p>
+<p><em>Number_of_Subjects_13</em><br>
+numeric. The number of subjects in the early antibiotic treatment group (1-3 hours).</p>
+<p><em>Mortality_of_Subjects_13</em><br>
+numeric. The mortality rate in the early antibiotic treatment group (1-3 hours).</p>
+<p><em>Number_of_Hospitals</em><br>
+numeric. The number of hospitals involved in the study.</p>
+<p><em>Design</em><br>
+character. The study design, including whether it was retrospective, prospective, observational, etc.</p>
+<p><em>Median_Age</em><br>
+numeric. The median age of patients in the study.</p>
+<p><em>Percent_Male</em><br>
+numeric. The percentage of male patients in the study.</p>
+<p><em>Median_Time_to_Antibiotics</em><br>
+numeric. The median time from sepsis onset to antibiotic administration.</p>
+<p>Reading the data:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="in">library(meta)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: metadat</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading 'meta' package (version 7.0-0).
-Type 'help(meta)' for a brief overview.
-Readers of 'Meta-Analysis with R (Use R!)' should install
-older version of 'meta' package: https://tinyurl.com/dt4y5drs</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="in">library(metafor)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: Matrix</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Loading required package: numDeriv</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Loading the 'metafor' package (version 4.6-0). For an
-introduction to the package please type: help(metafor)</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="in">library(dplyr)</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="in">mdata &lt;- read.csv("data/sepsis_meta.csv", sep=";")</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="in">rmarkdown::paged_table(mdata[1:5,])</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Author"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Number_of_Hospitals"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["Design"],"name":[3],"type":["chr"],"align":["left"]},{"label":["ED_Setting"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["Median_Age"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["Percent_Male"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["Definition_of_Onset"],"name":[7],"type":["chr"],"align":["left"]},{"label":["Mortality_Defined"],"name":[8],"type":["chr"],"align":["left"]},{"label":["Median_Time_to_Antibiotics"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["Number_of_Subjects_01"],"name":[10],"type":["int"],"align":["right"]},{"label":["Mortality_of_Subjects_01"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["Number_of_Subjects_13"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["Mortality_of_Subjects_13"],"name":[13],"type":["dbl"],"align":["right"]}],"data":[{"1":"Alam et al. (2018)","2":"34","3":"Prospective Controlled Open Label","4":"1","5":"72.5","6":"57.0","7":"ED arrival","8":"Hospital","9":"70","10":"31","11":"0.110","12":"16","13":"0.070","_rn_":"1"},{"1":"Bloos et al. (2014)","2":"44","3":"Prospective observational","4":"0","5":"69.0","6":"62.7","7":"Time of first organ dysfunction","8":"28 days","9":"126","10":"65","11":"0.349","12":"86","13":"0.345","_rn_":"2"},{"1":"Castano et al. (2019)","2":"3","3":"Prospective observational","4":"1","5":"63.0","6":"53.1","7":"ED triage","8":"Hospital","9":"NA","10":"15","11":"0.263","12":"33","13":"0.180","_rn_":"3"},{"1":"de Groot et al. (2015)","2":"3","3":"Prospective observational","4":"1","5":"62.0","6":"55.7","7":"ED registration","8":"28 days","9":"NA","10":"46","11":"0.139","12":"47","13":"0.140","_rn_":"4"},{"1":"Drumheller et al. (2016)","2":"1","3":"Retrospective cohort","4":"1","5":"59.5","6":"56.7","7":"ED triage","8":"Hospital","9":"120","10":"16","11":"0.178","12":"46","13":"0.256","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
 </div>
 </div>
+</div>
+</section>
+</section>
+<section id="calculation-of-mortality-standard-deviation" class="level3">
+<h3 class="anchored" data-anchor-id="calculation-of-mortality-standard-deviation">Calculation of mortality standard deviation</h3>
+<p>The original methodology employed by the authors involved calculating odds ratios with 95% confidence intervals. Here the original mortality rates were selected as the base parameter.</p>
+<p>Because mortality is an estimate of probability of death, standard deviations were calculated assuming a binomial distribution with the underlying probability of death equal to the mortality rate.</p>
+<p>The standard deviation of binomial distribution is expressed as:</p>
+<p><span class="math display">\[
+\text{SD} = \sqrt{n \cdot p \cdot (1 - p)}
+\]</span></p>
+<section id="where" class="level5">
+<h5 class="anchored" data-anchor-id="where">Where:</h5>
+<ul>
+<li><span class="math inline">\(SD\)</span> - Standard deviation of the binomial distribution.</li>
+<li><span class="math inline">\(n\)</span> - Number of independent trials (sample size).</li>
+<li><span class="math inline">\(p\)</span> - Probability of presence of event in a single trial.</li>
+<li><span class="math inline">\(1-p\)</span> - Probability of absence of event in a single trial.</li>
+</ul>
+<p>In R this could be easily calculated with <em>mutate</em> function:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="in">mdata &lt;- read.csv("data/sepsis_meta.csv", sep=";")</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="in">mdata[1:5,]</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>                                Author Number_of_Hospitals
-1          Alam.28\n2018∗\nNetherlands                  34
-2               Bloos.29 2014\nGermany                  44
-3          Castano.30\n2019∗\nColumbia                   3
-4        de Groot.31 2015\nNetherlands                   3
-5 Drumheller.32 2016\nPhiladelphia. PA                   1
-                             Design Setting..ED.only. Median_Age Percent_Male
-1 Prospective Controlled Open Label                 1       72.5         57.0
-2         Prospective observational                 0       69.0         62.7
-3         Prospective observational                 1       63.0         53.1
-4         Prospective observational                 1       62.0         55.7
-5              Retrospective cohort                 1       59.5         56.7
-   Definition.of.Onset..Time.Zero Mortality_Defined Median_Time_to_Antibiotics
-1                      ED arrival          Hospital                         70
-2 Time of first organ dysfunction           28 days                        126
-3                       ED triage          Hospital                         NA
-4                 ED registration           28 days                         NA
-5                       ED triage          Hospital                        120
-  Number_of_Subjects_01 Mortality_of_Subjects_01 Binom_SD_01
-1                    31                    0.110  0.05619666
-2                    65                    0.349  0.05912165
-3                    15                    0.263  0.11367527
-4                    46                    0.139  0.05100703
-5                    16                    0.178  0.09562819
-  Number_of_Subjects_13 Mortality_of_Subjects_13 Binom_SD_13
-1                    16                    0.070  0.06378675
-2                    86                    0.345  0.05126028
-3                    33                    0.180  0.06687845
-4                    47                    0.140  0.05061326
-5                    46                    0.256  0.06434689
-  Risk.Adjustment.or.Alternate.Severity.Comparison..0.1.Hour.vs.1.3.Hours
-1          0–1 h (8.5% septic shock) vs 1–3 h (3.9% septic shock). P=.052
-2                                                                    None
-3             0–1 h (35% septic shock). 1– 3 h (23% septic shock).\nP=.12
-4          0–1 h (36% PIRO score &gt;14). 1–3 h (26% PIRO score &gt;14).\nP=.02
-5                100% septic shock. No risk adjustment for 0–1 h vs 1–3 h</code></pre>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="in">mdata &lt;- mdata %&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(Binom_SD_01 = sqrt(Mortality_of_Subjects_01 * (1 - Mortality_of_Subjects_01) * Number_of_Subjects_01)) %&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="in">  mutate(Binom_SD_13 = sqrt(Mortality_of_Subjects_13 * (1 - Mortality_of_Subjects_13) * Number_of_Subjects_13))</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
+</section>
 </section>
 <section id="calculation-of-effect-sizes" class="level3">
 <h3 class="anchored" data-anchor-id="calculation-of-effect-sizes">Calculation of effect sizes</h3>
-<p><em>Note:</em></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="in">m &lt;- metacont(n.e=Number_of_Subjects_01,</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="in">              mean.e=Mortality_of_Subjects_01,</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="in">              sd.e=Binom_SD_01,</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="in">              n.c=Number_of_Subjects_13,</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="in">              mean.c=Mortality_of_Subjects_13,</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="in">              sd.c=Binom_SD_13,</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="in">              data=mdata,</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="in">              studlab=paste(Author),</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="in">              comb.fixed = TRUE,</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="in">              comb.random = TRUE,</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="in">m</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="in">m &lt;- metacont(n.e=Number_of_Subjects_01,</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="in">              mean.e=Mortality_of_Subjects_01,</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="in">              sd.e=Binom_SD_01,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="in">              n.c=Number_of_Subjects_13,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="in">              mean.c=Mortality_of_Subjects_13,</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="in">              sd.c=Binom_SD_13,</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="in">              data=mdata,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="in">              studlab=paste(Author),</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="in">              comb.fixed = TRUE,</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="in">              comb.random = TRUE,</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="in">m</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Number of studies: k = 16
 Number of observations: o = 7037.082 (o.e = 3327, o.c = 3710.082)
 
                           MD            95%-CI     z p-value
-Common effect model   0.0285 [ 0.0279; 0.0292] 87.70       0
-Random effects model -0.0073 [-0.0328; 0.0183] -0.56  0.5764
+Common effect model  -0.0036 [-0.2679; 0.2608] -0.03  0.9790
+Random effects model -0.0036 [-0.2679; 0.2608] -0.03  0.9790
 
 Quantifying heterogeneity:
- tau^2 = 0.0022 [0.0010; 0.0056]; tau = 0.0472 [0.0320; 0.0750]
- I^2 = 99.4% [99.3%; 99.5%]; H = 12.69 [11.74; 13.71]
+ tau^2 = 0; tau = 0; I^2 = 0.0% [0.0%; 52.3%]; H = 1.00 [1.00; 1.45]
 
 Test of heterogeneity:
-       Q d.f. p-value
- 2415.44   15       0
+    Q d.f. p-value
+ 0.14   15  1.0000
 
 Details on meta-analytical method:
 - Inverse variance method
-- Restricted maximum-likelihood estimator for tau^2
-- Q-Profile method for confidence interval of tau^2 and tau</code></pre>
+- Restricted maximum-likelihood estimator for tau^2</code></pre>
 </div>
 </div>
-<p><strong>Observation:</strong> We may observe significant, strong, negative differences between the average time boys spent with female toys and male toys. This suggests that empirically they are more reluctant to play with female toys.</p>
+<p><strong>Observation:</strong> P-values for both models are very high, indicating no statistical differences between the control and experimental groups.</p>
 </section>
 <section id="forest-plot" class="level2">
 <h2 class="anchored" data-anchor-id="forest-plot">Forest plot</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="in">m %&gt;% forest()</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="sepsis_metaanalysis_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="funnel-plot" class="level2">
-<h2 class="anchored" data-anchor-id="funnel-plot">Funnel plot</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="in">m %&gt;% funnel()</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="in">m %&gt;% forest()</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -298,14 +295,14 @@ Details on meta-analytical method:
 </div>
 </div>
 </div>
-<p><strong>Observation:</strong> The results are not symmetrically distributed around the average with majority on the left side which can be caused by inconsistency of sample sizes. However we observe a high prevalence of negative difference estimates with moderate standard errors which further supports the conclusion from common/random effects models.</p>
+<p><strong>Observation:</strong> Forest plots also indicate a lack of significant differences at the individual study levels, where mean differences are consistently around zero.</p>
+</section>
+<section id="funnel-plot" class="level2">
+<h2 class="anchored" data-anchor-id="funnel-plot">Funnel plot</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="in">contour_levels &lt;- c(0.90, 0.95, 0.99)</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="in">contour_colors &lt;- c("darkblue", "blue", "lightblue")</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="in">funnel(m, contour = contour_levels, col.contour = contour_colors)</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="in">legend("topright", c("p &lt; 0.10", "p &lt; 0.05", "p &lt; 0.01"), bty = "n", fill = contour_colors)</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="in">m %&gt;% funnel()</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -314,14 +311,31 @@ Details on meta-analytical method:
 </div>
 </div>
 </div>
+<p>Funnel Plot with Contours for P-values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="in">contour_levels &lt;- c(0.90, 0.95, 0.99)</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="in">contour_colors &lt;- c("darkblue", "blue", "lightblue")</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="in">funnel(m, contour = contour_levels, col.contour = contour_colors)</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="in">legend("topright", c("p &lt; 0.10", "p &lt; 0.05", "p &lt; 0.01"), bty = "n", fill = contour_colors)</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="sepsis_metaanalysis_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Observation:</strong> The plot clearly demonstrates the insignificance of differences between experimental and control samples across the studies. The data points are all within the white area, which represents high P-values, and are symmetrically distributed around zero.</p>
 </section>
 <section id="finding-what-explains-the-results" class="level2">
 <h2 class="anchored" data-anchor-id="finding-what-explains-the-results">Finding what explains the results</h2>
-<p>Let’s see if the effect sizes are determined by how the study was conducted and the gender of authors.</p>
+<p>Let’s investigate whether the effect sizes are influenced by different characteristics of the samples and applied research methods.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="in">m %&gt;% metareg(`Number_of_Hospitals` + `Percent_Male` + `Median_Age` + `Median_Time_to_Antibiotics` + `Design`)</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="in">m %&gt;% metareg(`Number_of_Hospitals` + `Percent_Male` + `Median_Age` + `Median_Time_to_Antibiotics` + `Design`)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in find(i): elements of 'what' after the first will be ignored</code></pre>
 </div>
@@ -339,46 +353,54 @@ Details on meta-analytical method:
 <pre><code>
 Mixed-Effects Model (k = 10; tau^2 estimator: REML)
 
-tau^2 (estimated amount of residual heterogeneity):     0 (SE = 0.0117)
+tau^2 (estimated amount of residual heterogeneity):     0 (SE = 0.4570)
 tau (square root of estimated tau^2 value):             0
 I^2 (residual heterogeneity / unaccounted variability): 0.00%
 H^2 (unaccounted variability / sampling variability):   1.00
-R^2 (amount of heterogeneity accounted for):            100.00%
+R^2 (amount of heterogeneity accounted for):            0.00%
 
 Test for Residual Heterogeneity:
-QE(df = 1) = 0.6732, p-val = 0.4119
+QE(df = 1) = 0.0172, p-val = 0.8955
 
 Test of Moderators (coefficients 2:9):
-QM(df = 8) = 227.8967, p-val &lt; .0001
+QM(df = 8) = 0.0849, p-val = 1.0000
 
 Model Results:
 
-                                           estimate      se     zval    pval 
-intrcpt                                     -3.1242  1.0286  -3.0373  0.0024 
-Number_of_Hospitals                          0.0309  0.0104   2.9580  0.0031 
-Percent_Male                                 0.0559  0.0173   3.2410  0.0012 
-Median_Age                                  -0.0110  0.0040  -2.7590  0.0058 
-Median_Time_to_Antibiotics                   0.0048  0.0014   3.5801  0.0003 
-DesignProspective Controlled Open Label     -0.6128  0.3113  -1.9685  0.0490 
-DesignProspective observational             -1.5858  0.5547  -2.8589  0.0043 
-DesignProspective. randomized. nonblinded    0.1132  0.0750   1.5085  0.1314 
-DesignRetrospective cohort                  -0.0754  0.0625  -1.2071  0.2274 
-                                             ci.lb    ci.ub      
-intrcpt                                    -5.1403  -1.1082   ** 
-Number_of_Hospitals                         0.0104   0.0513   ** 
-Percent_Male                                0.0221   0.0897   ** 
-Median_Age                                 -0.0189  -0.0032   ** 
-Median_Time_to_Antibiotics                  0.0022   0.0075  *** 
-DesignProspective Controlled Open Label    -1.2229  -0.0027    * 
-DesignProspective observational            -2.6730  -0.4986   ** 
-DesignProspective. randomized. nonblinded  -0.0339   0.2602      
-DesignRetrospective cohort                 -0.1979   0.0470      
+                                           estimate       se     zval    pval 
+intrcpt                                     -0.0036   7.8122  -0.0005  0.9996 
+Number_of_Hospitals                          0.0042   0.2506   0.0168  0.9866 
+Percent_Male                                 0.0003   0.1618   0.0020  0.9984 
+Median_Age                                  -0.0032   0.1143  -0.0277  0.9779 
+Median_Time_to_Antibiotics                   0.0007   0.0137   0.0498  0.9603 
+DesignProspective Controlled Open Label      0.0635   8.3953   0.0076  0.9940 
+DesignProspective observational             -0.0659  12.1934  -0.0054  0.9957 
+DesignProspective. randomized. nonblinded    0.0390   1.7671   0.0221  0.9824 
+DesignRetrospective cohort                   0.0689   1.6203   0.0426  0.9661 
+                                              ci.lb    ci.ub    
+intrcpt                                    -15.3153  15.3081    
+Number_of_Hospitals                         -0.4870   0.4954    
+Percent_Male                                -0.3168   0.3175    
+Median_Age                                  -0.2272   0.2209    
+Median_Time_to_Antibiotics                  -0.0262   0.0276    
+DesignProspective Controlled Open Label    -16.3910  16.5180    
+DesignProspective observational            -23.9644  23.8327    
+DesignProspective. randomized. nonblinded   -3.4245   3.5024    
+DesignRetrospective cohort                  -3.1068   3.2446    
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
-<p><strong>Observation:</strong> We may observe that neither the justification for the gendered nature of a toy (Case definition adequate), nor Newcastle-Ottawa Score (NOS score) proved significant. Only number of female authors turned out significant and explained the effects sizes (presence of male authors also did not prove significant).</p>
+<p><strong>Observation:</strong> Neither the number of hospitals, the percentage of males, nor the time to antibiotics prove significant. This also applies to the four different ways the studies were designed - none of them are significant.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>To conclude, after adding the two studies, the results of the original metaanalysis remained unchanged and were positively verified. All applied methods of significance testing — common effect model, random effect model, and regression of the effects on various study characteristics — failed to demonstrate any significant difference between immediate (0-1 hours after sepsis onset) and early (1-3 hours after sepsis onset) antibiotic treatment. This is also visible on funnel and forecast plots, which provide a clear perspective on individual studies.</p>
+</section>
+<section id="further-research" class="level2">
+<h2 class="anchored" data-anchor-id="further-research">Further research</h2>
+<p>Given the limited scope of this analysis and its aggregate level, similar studies could be conducted on more strictly defined patient groups (e.g., only those with severe sepsis or septic shock) and different time intervals.</p>
 </section>
 
 </main>

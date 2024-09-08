@@ -12,25 +12,69 @@ execute:
   echo: fenced
 ---
 
-### Introduction
+This report extends the work of [Rothroc et al. 2020 metanalysis](https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger), which reviewed data from 14 studies examining the impact of antibiotic administration timing on mortality among sepsis patients. Specifically, Rothroc et al. compared mortality rates between two groups: patients who received antibiotics within 0 to 1 hour of sepsis onset (immediate administration) and those who received antibiotics within 1 to 3 hours (early administration). The original study found no significant difference in mortality between these groups.
 
-This report builds on [Rothroc et al. 2020 metanalysis](https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger) reviewing data from 14 studies concernign the impact of immediecy of antibiotics administration in mortality among sepsis patients. Specifically the studies compare the mortatality between group of patients where antiobiotics were given in 0 to 1 hour from sepis onset (immediate administration) and the group when they were given antibiotics from 1 to 3 hour (early administration)
+This analysis builds on that original work by incorporating two additional studies published after the original review. Following a description of the selection criteria for the studies included, the variables and the method for estimating samples' standard deviations are discussed.
 
+Subsequently, random and fixed effect models are applied to determine if the difference between the immediate and early treatment groups is still insignificant with the expanded data set. To illustrate these findings and reflect on publication bias forest and funnel plots are presented.
 
-Publication selection criteria: concerning time spent by boys and girls with gender-related toys. Particulary the significance of the difference between the times boys spent playing with toys assocciated with girls (**experimental group**) is compared to time boys spent with toys associated with boys (**control group**).  https://www.annemergmed.com/article/S0196-0644(20)30337-1/fulltext#tbl1fnddagger
-
-Funell plot is used to visualise dispersion of differences between the studies.
-
-Additionaly the influence of factors such as: gender of authors, justification for the gendered nature of a toy and study quality score is examined.
+The report concludes with an analysis of sample-related and methodological factors that may influence the observed effects.
 
 
-### Additional Studies
+### Included studies
+
+Apart from the data from the original meta-analysis, two additional studies were included to further validate the findings. One study was conducted by [Siewers et al. (2021)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8119622/) in Denmark, and the other by [Althunayyan et al. (2022)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9280501/) in Riyadh, Saudi Arabia.
+
+<br>
+
+![Sepsis Mortality and immediecy of antibiotic therapy as per Althunayyan et al. (2022)](sepsis_mortality_alth.jpg){width=500}
+
+Both of these studies adhered to the publication selection criteria utilized by Rothroc et al. They were recognized in the established medical publishing service (*PubMed*) and provided data for similarly defined patient groups: septic patients who received antibiotics within 0-1 hours and those who received antibiotics within 1-3 hours from sepsis onset. Additionally, all patients were above the age of 18.
+
+**Original publication selection criteria:** The original meta-analysis included studies derived from recognized medical literature services (PubMed, Wiley’s Cochrane Library, EMBASE, Cumulative Index of Nursing and Allied Health Plus). These studies contained data for the two groups of interest (immediate and early antibiotic administration).
+
+**Exclusion criteria:** Studies were excluded if they did not provide the total number of patients for either the 0 to 1-hour or 1 to 3-hour groups, lacked mortality data for either antibiotic period, were duplicates or used the same patient database during the same period, or included patients aged 17 years or younger.
 
 
+### Data
 
-### Reading the Data
+#### List of Used Variables
 
+*Author*  
+character. The study label containing the author(s) of the study.
+
+*Number_of_Subjects_01*  
+numeric. The number of subjects in the immediate antibiotic treatment group (0-1 hours).
+
+*Mortality_of_Subjects_01*  
+numeric. The mortality rate in the immediate antibiotic treatment group (0-1 hours).
+
+*Number_of_Subjects_13*  
+numeric. The number of subjects in the early antibiotic treatment group (1-3 hours).
+
+*Mortality_of_Subjects_13*  
+numeric. The mortality rate in the early antibiotic treatment group (1-3 hours).
+
+*Number_of_Hospitals*  
+numeric. The number of hospitals involved in the study.
+
+*Design*  
+character. The study design, including whether it was retrospective, prospective, observational, etc.
+
+*Median_Age*  
+numeric. The median age of patients in the study.
+
+*Percent_Male*  
+numeric. The percentage of male patients in the study.
+
+*Median_Time_to_Antibiotics*  
+numeric. The median time from sepsis onset to antibiotic administration.
+
+
+Reading the data:
 ```{r}
+#| label = "setup",
+#| include = FALSE
 library(meta)
 library(metafor)
 library(dplyr)
@@ -38,12 +82,37 @@ library(dplyr)
 
 ```{r}
 mdata <- read.csv("data/sepsis_meta.csv", sep=";")
-mdata[1:5,]
+rmarkdown::paged_table(mdata[1:5,])
+```
+
+### Calculation of mortality standard deviation
+
+The original methodology employed by the authors involved calculating odds ratios with 95% confidence intervals. Here the original mortality rates were selected as the base parameter. 
+
+Because mortality is an estimate of probability of death, standard deviations were calculated assuming a binomial distribution with the underlying probability of death equal to the mortality rate.
+
+The standard deviation of binomial distribution is expressed as:
+
+$$
+\text{SD} = \sqrt{n \cdot p \cdot (1 - p)}
+$$
+
+
+##### Where:
+* $SD$ - Standard deviation of the binomial distribution.
+* $n$ - Number of independent trials (sample size).
+* $p$ - Probability of presence of event in a single trial.
+* $1-p$ - Probability of absence of event in a single trial.
+
+
+In R this could be easily calculated with *mutate* function:
+```{r}
+mdata <- mdata %>%
+  mutate(Binom_SD_01 = sqrt(Mortality_of_Subjects_01 * (1 - Mortality_of_Subjects_01) * Number_of_Subjects_01)) %>%
+  mutate(Binom_SD_13 = sqrt(Mortality_of_Subjects_13 * (1 - Mortality_of_Subjects_13) * Number_of_Subjects_13))
 ```
 
 ### Calculation of effect sizes
-
-*Note:* 
 
 ```{r}
 m <- metacont(n.e=Number_of_Subjects_01,
@@ -61,12 +130,14 @@ m
 ```
 
 
-**Observation:** We may observe significant, strong, negative differences between the average time boys spent with female toys and male toys. This suggests that empirically they are more reluctant to play with female toys. 
+**Observation:** P-values for both models are very high, indicating no statistical differences between the control and experimental groups.
 
 ## Forest plot
 ```{r}
 m %>% forest()
 ```
+
+**Observation:** Forest plots also indicate a lack of significant differences at the individual study levels, where mean differences are consistently around zero.
 
 ## Funnel plot
 
@@ -75,8 +146,7 @@ m %>% funnel()
 ```
 
 
-**Observation:** The results are not symmetrically distributed around the average with majority on the left side which can be caused by inconsistency of sample sizes. However we observe a high prevalence of negative difference estimates with moderate standard errors which further supports the conclusion from common/random effects models. 
-
+Funnel Plot with Contours for P-values:
 ```{r}
 contour_levels <- c(0.90, 0.95, 0.99)
 contour_colors <- c("darkblue", "blue", "lightblue")
@@ -84,13 +154,23 @@ funnel(m, contour = contour_levels, col.contour = contour_colors)
 legend("topright", c("p < 0.10", "p < 0.05", "p < 0.01"), bty = "n", fill = contour_colors)
 ```
 
+**Observation:** The plot clearly demonstrates the insignificance of differences between experimental and control samples across the studies. The data points are all within the white area, which represents high P-values, and are symmetrically distributed around zero.
+
 ## Finding what explains the results
 
-Let's see if the effect sizes are determined by how the study was conducted and the gender of authors.
+Let's investigate whether the effect sizes are influenced by different characteristics of the samples and applied research methods.
 
 ```{r}
 m %>% metareg(`Number_of_Hospitals` + `Percent_Male` + `Median_Age` + `Median_Time_to_Antibiotics` + `Design`)
   
 ```  
 
-**Observation:** We may observe that neither the justification for the gendered nature of a toy (Case definition adequate), nor Newcastle-Ottawa Score (NOS score) proved significant. Only number of female authors turned out significant and explained the effects sizes (presence of male authors also did not prove significant).
+**Observation:** Neither the number of hospitals, the percentage of males, nor the time to antibiotics prove significant. This also applies to the four different ways the studies were designed - none of them are significant.
+
+## Conclusion
+
+To conclude, after adding the two studies, the results of the original metaanalysis remained unchanged and were positively verified. All applied methods of significance testing — common effect model, random effect model, and regression of the effects on various study characteristics — failed to demonstrate any significant difference between immediate (0-1 hours after sepsis onset) and early (1-3 hours after sepsis onset) antibiotic treatment. This is also visible on funnel and forecast plots, which provide a clear perspective on individual studies.
+
+## Further research
+
+Given the limited scope of this analysis and its aggregate level, similar studies could be conducted on more strictly defined patient groups (e.g., only those with severe sepsis or septic shock) and different time intervals.
