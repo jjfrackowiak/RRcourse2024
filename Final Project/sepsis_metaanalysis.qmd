@@ -27,7 +27,7 @@ Apart from the data from the original meta-analysis, two additional studies were
 
 <br>
 
-![Sepsis Mortality and immediecy of antibiotic therapy as per Althunayyan et al. (2022)](sepsis_mortality_alth.jpg){width=500}
+![Sepsis Mortality and immediecy of antibiotic therapy as per Althunayyan et al. (2022)](images/sepsis_mortality_alth.jpg){width=500}
 
 Both of these studies adhered to the publication selection criteria utilized by Rothroc et al. They were recognized in the established medical publishing service (*PubMed*) and provided data for similarly defined patient groups: septic patients who received antibiotics within 0-1 hours and those who received antibiotics within 1-3 hours from sepsis onset. Additionally, all patients were above the age of 18.
 
@@ -35,6 +35,26 @@ Both of these studies adhered to the publication selection criteria utilized by 
 
 **Exclusion criteria:** Studies were excluded if they did not provide the total number of patients for either the 0 to 1-hour or 1 to 3-hour groups, lacked mortality data for either antibiotic period, were duplicates or used the same patient database during the same period, or included patients aged 17 years or younger.
 
+### Environment
+
+In order to reproduce the result and guarantee the use of the same version of libraries renv package is utilised.
+renv creates a snapshot of envirnoment and stores it to renv.lock file, which then can easily restored with restore() function:
+```{r}
+#| message = FALSE,
+#| warning = FALSE,
+#| label = "setup"
+
+if (!require(renv)) {
+  install.packages("renv", repos = "http://cran.us.r-project.org")
+  library(renv)
+}
+
+renv::restore() 
+library(meta)
+library(metafor)
+library(dplyr)
+library(rmarkdown)
+```
 
 ### Data
 
@@ -70,16 +90,7 @@ numeric. The percentage of male patients in the study.
 *Median_Time_to_Antibiotics*  
 numeric. The median time from sepsis onset to antibiotic administration.
 
-
 Reading the data:
-```{r}
-#| label = "setup",
-#| include = FALSE
-library(meta)
-library(metafor)
-library(dplyr)
-```
-
 ```{r}
 mdata <- read.csv("data/sepsis_meta.csv", sep=";")
 rmarkdown::paged_table(mdata[1:5,])
@@ -134,7 +145,7 @@ Here is the forest plot obtained by authors:
 
 <br>
 
-![Forest plot from original study](sepsis_results_org.jpg)
+![Forest plot from original study](images/sepsis_results_org.jpg)
 
 **Observation:** As observed, the results are consistent. They are also very similar concerning the random effects model odds ratios (1.09 [0.99, 1.21] vs 1.00 [0.98, 1.21]). Interestingly, for the common effects model (Mantel-Haenszel), the lower bound of the confidence interval is greater than 1, indicating a significant difference between the experimental and control samples.
 
